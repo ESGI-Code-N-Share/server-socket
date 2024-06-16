@@ -1,0 +1,37 @@
+name: Create Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      release-description:
+        description: 'Release Description'
+        required: true
+      version:
+        description: 'Version'
+        required: true
+
+jobs:
+  build_and_test:
+    uses: ./.github/workflows/ci.yml
+
+  create_release:
+    runs-on: ubuntu-latest
+
+    steps:
+      # https://github.com/actions/checkout
+      - name: Init Checkout
+        uses: actions/checkout@v4
+
+      # https://github.com/actions/create-release
+      - name: Create Release On Github
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ inputs.version }}
+          release_name: Release ${{ inputs.version }}
+          body: |
+            ${{ inputs.release-description }}
+          draft: false
+          prerelease: false
